@@ -172,7 +172,7 @@ fn main() {
 
     let index_value_map: HashMap<_, _> = values.clone().map(|item| (item.index, item)).collect();
     let self_index_index_map:  HashMap<_, _> = values.clone().map(|item| (item.self_index, item.index)).collect();
-    let nums: HashSet<IndexValue> = input.lines()
+    let nums: u32 = input.lines()
         .enumerate()
         .map(|(line_num, line)| {
             let line = line.trim();
@@ -199,23 +199,27 @@ fn main() {
                 ].into_iter()
             })
         })
-    .flatten()
         .flatten()
         .filter_map(|positions| {
-            match positions {
+            let res: HashSet<_> = positions.map(|position| {
+                match position {
                 (Some(x), Some(y)) => self_index_index_map.get(&(x, y)),
                 _ => None
+                }
+            })
+            .filter_map(|i| i)
+                .filter_map(|v| index_value_map.get(v))
+                .collect();
+
+            match res.len() {
+                2 => {
+                    Some(res.iter().map(|item| item.value).product::<u32>())
+                },
+                _ => None
             }
-        })
-    .filter_map(|start_index| {
-        index_value_map.get(start_index)
-    })
-    .cloned()
-    .collect();
+        }).sum();
 
-    let out: u32  = nums.iter().map(|iv| {println!("{}", iv.value);iv.value}).sum();
-
-    println!("Hello, world! {}", out);
+    println!("Hello, world! {}", nums);
 }
 
 #[derive(Clone, Debug, Hash)]

@@ -1,0 +1,47 @@
+fn main() {
+    let input = "467..114..
+        ...*......
+        ..35..633.
+        ......#...
+        617*......
+        .....+.58.
+        ..592.....
+        ......755.
+        ...$.*....
+        .664.598..";
+
+    let out: usize = input.lines()
+        .map(|line| line.trim())
+        .enumerate()
+        .map(|(line_num, line)| {
+            line.chars()
+                .enumerate()
+                .scan(None, |acc: &mut Option<IndexValue>, (char_index, c)| {
+                    let curr = if c.is_numeric() {
+                        match acc {
+                            Some(x) => Some(IndexValue {
+                                index: (line_num, char_index),
+                                value: c.to_digit(10).unwrap() + x.value * 10
+                            }),
+                            None => Some(IndexValue {
+                                index: (line_num, char_index),
+                                value: c.to_digit(10).unwrap()
+                            })
+                        }
+                    } else {
+                        None
+                    };
+                    *acc = curr.clone();
+                    curr
+                }).for_each(|thing| println!("{}", thing));
+            1
+        }).sum();
+
+    println!("Hello, world! {}", out);
+}
+
+#[derive(Clone, Debug)]
+struct IndexValue {
+    index: (usize, usize),
+    value: u32
+}
